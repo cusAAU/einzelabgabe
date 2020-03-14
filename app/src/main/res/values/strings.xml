@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">NetworkTest</string>
+    <string name="addMatrikel">Gimme your matrikel nr.</string>
+    <string name="btnSendIt">Yo!</string>
+    <string name="txtViewHintEnterId">matrikel nr.</string>
+    <string name="txtViewHintResOutput">server res.</string>
+</resources>
