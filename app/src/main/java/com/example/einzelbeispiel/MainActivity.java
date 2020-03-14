@@ -15,18 +15,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity{
 
-    //new
+    //declare vars, consts, objects ...
     public static final int SERVERPORT = 53212;
     public static final String SERVERIP = "se2-isys.aau.at";
     private ClientThread clientThread = new ClientThread();
-    //private SendMessage sendMessage;
-    private Thread thread;
-
-    //*
+    private ModuloThread moduloThread = new ModuloThread();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +39,12 @@ public class MainActivity extends AppCompatActivity{
                 EditText numImput = (EditText) findViewById(R.id.numImput);
                 TextView resOutput = (TextView) findViewById(R.id.resOutput);
 
-                //TODO: handle the case of empty sending
                 if(numImput.getText().toString().length() > 0) {
                     int num = Integer.parseInt(numImput.getText().toString());
                     String numString = num + "";
                     //resOutput.setText(numString);
 
-                    if (clientThread != null && num + "".length() > 0) {
+                    if (!numString.isEmpty()) {
                         Thread t1 = new Thread(clientThread);
                         t1.start();
                         //clientThread.sendMessage(num + "");
@@ -65,13 +62,11 @@ public class MainActivity extends AppCompatActivity{
                 } else {
                     resOutput.setText("You kinda forgot to put the matrikel nr.");
                 }
-
                 //KURS: tips and tricks
                 // log.d(TAG, LOG)
                 // NETWORK:
                 // thread += new t('tasktodo'); --> t.start() calls the thread
                 // button deaktivieren as soon as clicked. then activate again
-
             }
         });
 
@@ -79,8 +74,34 @@ public class MainActivity extends AppCompatActivity{
         Button calcMod = (Button) findViewById(R.id.calcMod);
         calcMod.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                //TextView resOutput = (TextView) findViewById(R.id.resOutput);
+                //resOutput.setText("Modulo Stuff");
+
+                EditText numImput = (EditText) findViewById(R.id.numImput);
                 TextView resOutput = (TextView) findViewById(R.id.resOutput);
-                resOutput.setText("Modulo Stuff");
+
+                if(numImput.getText().toString().length() > 0) {
+                    int num = Integer.parseInt(numImput.getText().toString());
+                    String numString = num + "";
+                    //resOutput.setText(numString);
+
+                    if (!numString.isEmpty()) {
+                        Thread t2 = new Thread(moduloThread);
+                        t2.start();
+                        Log.i("MAIN", "Modulo thread is OK: " + t2);
+                        try {
+                            t2.join();
+                        } catch (InterruptedException e) {
+                            Log.i("ERROR", "something went wrong" + e);
+                        }
+
+                        String modulo = moduloThread.getModulo();
+
+                        resOutput.setText(modulo + "");
+                    }
+                } else {
+                    resOutput.setText("You kinda forgot to put the matrikel nr.");
+                }
             }
         });
 
@@ -96,21 +117,18 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         public void run() {
-            Log.i("INFO", "HOST IS KNOWN");
+            Log.i("INFO", "CleintThread is being called");
             try {
-                //InetAddress serverAddr = InetAddress.getByName(SERVERIP);
-                //socket = new Socket(serverAddr, SERVERPORT);
-                cleintSocket = new Socket(SERVERIP, 53212);
+                cleintSocket = new Socket(SERVERIP, SERVERPORT);
                 Log.i("INFO HOST", "HOST IS KNOWN" + cleintSocket);
 
-                //while (!Thread.currentThread().isInterrupted()) {
                     EditText numImput = (EditText) findViewById(R.id.numImput);
                     int num = Integer.parseInt(numImput.getText().toString());
 
                     this.input = new BufferedReader(new InputStreamReader(System.in));
 
                     String message = num+"";
-                    if (null != message && message.length() > 0) {
+                    if (!message.isEmpty()) {
                         int i = 1;
                         while(i <= 2){
                             try {
@@ -122,20 +140,15 @@ public class MainActivity extends AppCompatActivity{
                                 this.input = new BufferedReader(new InputStreamReader(cleintSocket.getInputStream()));
                                 sentence = new String();
                                 sentence = input.readLine();
-                                Log.i("INFO####", sentence);
                                 return;
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                i++;
                             }
                             i++;
                         }
-
                     } else {
                         Log.i("ERROR", "No number was given");
                     }
-
-               //}
             } catch (UnknownHostException e1) {
                 Log.i("INFO HOST", "HOST IS NOT KNOWN");
                 e1.printStackTrace();
@@ -149,52 +162,79 @@ public class MainActivity extends AppCompatActivity{
         public String getSentence(){
             return sentence+"";
         }
+    };
 
-        /*public void sendMessage(final String message) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i("INFO2", "WORKS SENDMESSAGE " + message);
-                    try {
-                        if (cleintSocket != null) {
-                            Log.i("INFO3", "WORKS SENDMESSAGE");
-                            PrintWriter out = new PrintWriter(new BufferedWriter(
-                                    new OutputStreamWriter(cleintSocket.getOutputStream())),
-                                    true);
-                            out.println(message);
-                        } else {
-                            Log.i("INFO", "NO SOCKET");
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }*/
-    }
+    class ModuloThread implements Runnable{
 
-    /*class SendMessage implements Runnable {
-        String message;
-        Socket clientSocket;
-        public void SendMessage(final String message, final Socket clientSocket){
-            this.message = message;
-            this.clientSocket = clientSocket;
-        }
+        private volatile int modulo;
+
         @Override
         public void run() {
-            Log.i("INFO2", "WORKS SENDMESSAGE " + this.message);
+            Log.i("INFO", "ModuloThread is being called");
             try {
-                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-                Log.i("INFO", "DataOutputStream: " + outToServer);
-                outToServer.writeBytes(message + "\n");
-                //PrintWriter out = new PrintWriter(new BufferedWriter(
-                //        new OutputStreamWriter(clientSocket.getOutputStream())),
-                //        true);
-                //out.println(this.message);
-            } catch (Exception e) {
+                EditText numImput = (EditText) findViewById(R.id.numImput);
+                int num = Integer.parseInt(numImput.getText().toString());
+
+                modulo = num;
+
+            } catch (Error e){
                 e.printStackTrace();
             }
         }
-    }*/
 
+
+
+        public String getModulo(){
+            //my matrikel mod 7 returns 6...so: "Matrikelnummer sortieren, wobei zuerst alle geraden dann alle ungeraden Ziffern gereiht sind"
+            int lenghtOfInput = String.valueOf(modulo).length();
+
+            if (lenghtOfInput != 7){
+                String response = modulo + "...is not a valid matrikel. It should contain 7 digits. This one has: " + lenghtOfInput + " digits.";
+                return response;
+            } else {
+                int[] arr = new int[lenghtOfInput];
+
+                //make an array of digits
+                int i = 0;
+                do {
+                    arr[i] = modulo % 10;
+                    modulo /= 10;
+                    i++;
+                } while (modulo != 0);
+
+                //seperate even digits from odd ones
+                String even = new String();
+                String odd = new String();
+                for (int runner = 0; runner < lenghtOfInput; runner++){
+                    if(arr[runner] % 2 == 0){
+                        even += arr[runner];
+                    } else {
+                        odd += arr[runner];
+                    }
+                }
+
+                //Sorting of the char-rays :) which are numbers
+                char[] evenSorted = even.toCharArray();
+                Arrays.sort(evenSorted);
+                String evenSortedString = new String(evenSorted);
+                char[] oddSorted = odd.toCharArray();
+                Arrays.sort(oddSorted);
+                String oddSortedString = new String(oddSorted);
+
+                return "Here, even numbers: " +
+                        evenSortedString + '\n' + " And odd numbers: " +
+                        oddSortedString + '\n' +
+                        "Solution: " + evenSortedString + oddSortedString;
+            }
+        }
+    }
+
+    // wanna do a JS-like array.push()...
+    private static int[] push(int[] array, int push) {
+        int[] longer = new int[array.length + 1];
+        for (int i = 0; i < array.length; i++)
+            longer[i] = array[i];
+        longer[array.length] = push;
+        return longer;
+    }
 }
