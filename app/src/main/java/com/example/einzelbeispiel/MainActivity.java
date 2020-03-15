@@ -20,6 +20,8 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity{
 
+    //TODO put string into vars
+
     //declare vars, consts, objects ...
     public static final int SERVERPORT = 53212;
     public static final String SERVERIP = "se2-isys.aau.at";
@@ -30,25 +32,23 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         //NETWORKING STUFF
-        Button sendBtn = (Button) findViewById(R.id.sendBtn);
+        Button sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText numImput = (EditText) findViewById(R.id.numImput);
-                TextView resOutput = (TextView) findViewById(R.id.resOutput);
+                EditText numImput = findViewById(R.id.numImput);
+                TextView resOutput = findViewById(R.id.resOutput);
+                Button sendBtn = findViewById(R.id.sendBtn);
+                sendBtn.setClickable(false);
 
                 if(numImput.getText().toString().length() > 0) {
                     int num = Integer.parseInt(numImput.getText().toString());
                     String numString = num + "";
-                    //resOutput.setText(numString);
 
                     if (!numString.isEmpty()) {
                         Thread t1 = new Thread(clientThread);
                         t1.start();
-                        //clientThread.sendMessage(num + "");
-                        Log.i("MAIN", "CLEINT THREAD IS OK: " + t1);
                         try {
                             t1.join();
                         } catch (InterruptedException e) {
@@ -58,45 +58,34 @@ public class MainActivity extends AppCompatActivity{
                         String serverResponse = clientThread.getSentence();
                         Log.i("####serverResponse####", serverResponse + "");
                         resOutput.setText(serverResponse + "");
+                        sendBtn.setClickable(true);
                     }
                 } else {
                     resOutput.setText("You kinda forgot to put the matrikel nr.");
                 }
-                //KURS: tips and tricks
-                // log.d(TAG, LOG)
-                // NETWORK:
-                // thread += new t('tasktodo'); --> t.start() calls the thread
-                // button deaktivieren as soon as clicked. then activate again
             }
         });
 
         //MODULO STUFF
-        Button calcMod = (Button) findViewById(R.id.calcMod);
+        Button calcMod = findViewById(R.id.calcMod);
         calcMod.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //TextView resOutput = (TextView) findViewById(R.id.resOutput);
-                //resOutput.setText("Modulo Stuff");
-
-                EditText numImput = (EditText) findViewById(R.id.numImput);
-                TextView resOutput = (TextView) findViewById(R.id.resOutput);
+                EditText numImput = findViewById(R.id.numImput);
+                TextView resOutput = findViewById(R.id.resOutput);
 
                 if(numImput.getText().toString().length() > 0) {
                     int num = Integer.parseInt(numImput.getText().toString());
                     String numString = num + "";
-                    //resOutput.setText(numString);
 
                     if (!numString.isEmpty()) {
                         Thread t2 = new Thread(moduloThread);
                         t2.start();
-                        Log.i("MAIN", "Modulo thread is OK: " + t2);
                         try {
                             t2.join();
                         } catch (InterruptedException e) {
                             Log.i("ERROR", "something went wrong" + e);
                         }
-
                         String modulo = moduloThread.getModulo();
-
                         resOutput.setText(modulo + "");
                     }
                 } else {
@@ -122,7 +111,7 @@ public class MainActivity extends AppCompatActivity{
                 cleintSocket = new Socket(SERVERIP, SERVERPORT);
                 Log.i("INFO HOST", "HOST IS KNOWN" + cleintSocket);
 
-                    EditText numImput = (EditText) findViewById(R.id.numImput);
+                    EditText numImput = findViewById(R.id.numImput);
                     int num = Integer.parseInt(numImput.getText().toString());
 
                     this.input = new BufferedReader(new InputStreamReader(System.in));
@@ -172,11 +161,9 @@ public class MainActivity extends AppCompatActivity{
         public void run() {
             Log.i("INFO", "ModuloThread is being called");
             try {
-                EditText numImput = (EditText) findViewById(R.id.numImput);
+                EditText numImput = findViewById(R.id.numImput);
                 int num = Integer.parseInt(numImput.getText().toString());
-
                 modulo = num;
-
             } catch (Error e){
                 e.printStackTrace();
             }
@@ -188,8 +175,8 @@ public class MainActivity extends AppCompatActivity{
             //my matrikel mod 7 returns 6...so: "Matrikelnummer sortieren, wobei zuerst alle geraden dann alle ungeraden Ziffern gereiht sind"
             int lenghtOfInput = String.valueOf(modulo).length();
 
-            if (lenghtOfInput != 7){
-                String response = modulo + "...is not a valid matrikel. It should contain 7 digits. This one has: " + lenghtOfInput + " digits.";
+            if (lenghtOfInput != 8){
+                String response = modulo + "...is not a valid matrikel. It should contain 8 digits. This one has: " + lenghtOfInput + " digits.";
                 return response;
             } else {
                 int[] arr = new int[lenghtOfInput];
@@ -213,7 +200,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
 
-                //Sorting of the char-rays :) which are numbers
+                //Sorting of the char-rays which are numbers
                 char[] evenSorted = even.toCharArray();
                 Arrays.sort(evenSorted);
                 String evenSortedString = new String(evenSorted);
@@ -221,20 +208,9 @@ public class MainActivity extends AppCompatActivity{
                 Arrays.sort(oddSorted);
                 String oddSortedString = new String(oddSorted);
 
-                return "Here, even numbers: " +
-                        evenSortedString + '\n' + " And odd numbers: " +
-                        oddSortedString + '\n' +
-                        "Solution: " + evenSortedString + oddSortedString;
+
+                return  "Solution (Even, then odd numbers ascending): \n" + evenSortedString + oddSortedString;
             }
         }
-    }
-
-    // wanna do a JS-like array.push()...
-    private static int[] push(int[] array, int push) {
-        int[] longer = new int[array.length + 1];
-        for (int i = 0; i < array.length; i++)
-            longer[i] = array[i];
-        longer[array.length] = push;
-        return longer;
     }
 }

@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">NetworkTest</string>
-    <string name="addMatrikel">Gimme your matrikel nr.</string>
-    <string name="btnSendIt">Yo!</string>
+    <string name="addMatrikel">Give me your matrikel nr.</string>
+    <string name="btnSendIt">Send to server!</string>
+    <string name="btnMod">Do mod 6 task!</string>
     <string name="txtViewHintEnterId">matrikel nr.</string>
     <string name="txtViewHintResOutput">server res.</string>
+    <string name="missingMatrikelNote">You did not to put a matrikel nr.</string>
+    <string name="notValidMatrikelNotePt1">...is not a valid matrikel nr. It should contain 8 digits. This one has:</string>
+    <string name="notValidMatrikelNotePt2">digits.</string>
+    <string name="solutionTxt">Solution (Even numbers ascending, then odd numbers ascending):</string>
 </resources>
