@@ -208,8 +208,11 @@ public class MainActivity extends AppCompatActivity{
                 Arrays.sort(oddSorted);
                 String oddSortedString = new String(oddSorted);
 
-
-                return  "Solution (Even, then odd numbers ascending): \n" + evenSortedString + oddSortedString;
+                /*return "Here, even numbers: " +
+                        evenSortedString + '\n' + " And odd numbers: " +
+                        oddSortedString + '\n' +
+                        "Solution: " + evenSortedString + oddSortedString;*/
+                return  "Solution (Even numbers ascending, then odd numbers ascending): \n" + evenSortedString + oddSortedString;
             }
         }
     }
