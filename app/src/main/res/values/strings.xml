@@ -2,7 +2,7 @@
     <string name="app_name">NetworkTest</string>
     <string name="addMatrikel">Give me your matrikel nr.</string>
     <string name="btnSendIt">Send to server!</string>
-    <string name="btnMod">Do mod 6 task!</string>
+    <string name="btnMod">Do the 6th task!</string>
     <string name="txtViewHintEnterId">matrikel nr.</string>
     <string name="txtViewHintResOutput">server res.</string>
     <string name="missingMatrikelNote">You did not to put a matrikel nr.</string>
