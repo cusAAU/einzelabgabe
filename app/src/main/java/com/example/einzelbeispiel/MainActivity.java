@@ -19,9 +19,6 @@ import java.util.Arrays;
 
 
 public class MainActivity extends AppCompatActivity{
-
-    //TODO put string into vars
-
     //declare vars, consts, objects ...
     public static final int SERVERPORT = 53212;
     public static final String SERVERIP = "se2-isys.aau.at";
@@ -32,7 +29,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //NETWORKING STUFF
+        //NETWORKING PART
         Button sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,16 +54,16 @@ public class MainActivity extends AppCompatActivity{
 
                         String serverResponse = clientThread.getSentence();
                         Log.i("####serverResponse####", serverResponse + "");
-                        resOutput.setText(serverResponse + "");
-                        sendBtn.setClickable(true);
+                        resOutput.setText(serverResponse);
                     }
                 } else {
-                    resOutput.setText("You kinda forgot to put the matrikel nr.");
+                    resOutput.setText(getString(R.string.missingMatrikelNote));
                 }
+                sendBtn.setClickable(true);
             }
         });
 
-        //MODULO STUFF
+        //MODULO PART
         Button calcMod = findViewById(R.id.calcMod);
         calcMod.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -86,10 +83,10 @@ public class MainActivity extends AppCompatActivity{
                             Log.i("ERROR", "something went wrong" + e);
                         }
                         String modulo = moduloThread.getModulo();
-                        resOutput.setText(modulo + "");
+                        resOutput.setText(modulo);
                     }
                 } else {
-                    resOutput.setText("You kinda forgot to put the matrikel nr.");
+                    resOutput.setText(getString(R.string.missingMatrikelNote));
                 }
             }
         });
@@ -148,10 +145,10 @@ public class MainActivity extends AppCompatActivity{
 
         }
 
-        public String getSentence(){
+        private String getSentence(){
             return sentence+"";
         }
-    };
+    }
 
     class ModuloThread implements Runnable{
 
@@ -162,8 +159,7 @@ public class MainActivity extends AppCompatActivity{
             Log.i("INFO", "ModuloThread is being called");
             try {
                 EditText numImput = findViewById(R.id.numImput);
-                int num = Integer.parseInt(numImput.getText().toString());
-                modulo = num;
+                modulo = Integer.parseInt(numImput.getText().toString());
             } catch (Error e){
                 e.printStackTrace();
             }
@@ -171,13 +167,14 @@ public class MainActivity extends AppCompatActivity{
 
 
 
-        public String getModulo(){
+        private String getModulo(){
             //my matrikel mod 7 returns 6...so: "Matrikelnummer sortieren, wobei zuerst alle geraden dann alle ungeraden Ziffern gereiht sind"
             int lenghtOfInput = String.valueOf(modulo).length();
+            String even = new String();
+            String odd = new String();
 
             if (lenghtOfInput != 8){
-                String response = modulo + "...is not a valid matrikel. It should contain 8 digits. This one has: " + lenghtOfInput + " digits.";
-                return response;
+                return modulo + getString(R.string.notValidMatrikelNotePt1) + lenghtOfInput + getString(R.string.notValidMatrikelNotePt2);
             } else {
                 int[] arr = new int[lenghtOfInput];
 
@@ -185,13 +182,11 @@ public class MainActivity extends AppCompatActivity{
                 int i = 0;
                 do {
                     arr[i] = modulo % 10;
-                    modulo /= 10;
+                    modulo = modulo / 10;
                     i++;
                 } while (modulo != 0);
 
                 //seperate even digits from odd ones
-                String even = new String();
-                String odd = new String();
                 for (int runner = 0; runner < lenghtOfInput; runner++){
                     if(arr[runner] % 2 == 0){
                         even += arr[runner];
@@ -208,11 +203,7 @@ public class MainActivity extends AppCompatActivity{
                 Arrays.sort(oddSorted);
                 String oddSortedString = new String(oddSorted);
 
-                /*return "Here, even numbers: " +
-                        evenSortedString + '\n' + " And odd numbers: " +
-                        oddSortedString + '\n' +
-                        "Solution: " + evenSortedString + oddSortedString;*/
-                return  "Solution (Even numbers ascending, then odd numbers ascending): \n" + evenSortedString + oddSortedString;
+                return  getString(R.string.solutionTxt) + "\n" + evenSortedString + oddSortedString;
             }
         }
     }
